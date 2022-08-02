@@ -5,12 +5,13 @@ const User = require("../models/User.model");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 const saltRounds = 10;
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-	const { email, password } = req.body;
-
-	if (email === "" || password === "") {
+	const { email, pwd } = req.body;
+	console.log(pwd);
+	if (email === "" || pwd === "") {
 		res.status(400).json({ message: "Provide email and password" });
 		return;
 	}
@@ -21,7 +22,7 @@ router.post("/signup", (req, res, next) => {
 		return;
 	}
 
-	if (password.length < 7) {
+	if (pwd.length < 7) {
 		res
 			.status(400)
 			.json({ message: "Passowrd must be longer than 7 characters" });
@@ -35,9 +36,9 @@ router.post("/signup", (req, res, next) => {
 			}
 
 			const salt = bcrypt.genSaltSync(saltRounds);
-			const hashedPassword = bcrypt.hashSync(password, salt);
+			const hashedPassword = bcrypt.hashSync(pwd, salt);
 
-			return User.create({ email, password: hashedPassword });
+			return User.create({ email, pwd: hashedPassword });
 		})
 		.then((createdUser) => {
 			const { email, _id } = createdUser;
@@ -53,21 +54,22 @@ router.post("/signup", (req, res, next) => {
 // POST  /auth/login
 // ...
 router.post("/login", (req, res, next) => {
-	const { email, password } = req.body;
+	const { email, pwd } = req.body;
 
-	if (email === "" || password === "") {
+	if (email === "" || pwd === "") {
 		res.status(400).json({ message: "Provide email and password." });
 		return;
 	}
 
 	User.findOne({ email })
 		.then((foundUser) => {
+			console.log(foundUser);
 			if (!foundUser) {
 				res.status(401).json({ message: "User not found." });
 				return;
 			}
 
-			const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
+			const passwordCorrect = bcrypt.compareSync(pwd, foundUser.pwd);
 
 			if (passwordCorrect) {
 				const { _id, email } = foundUser;
@@ -86,10 +88,12 @@ router.post("/login", (req, res, next) => {
 		.catch((err) => res.status(500).json({ message: "Internal Server Error" }));
 });
 
-router.get("logout", (req, res) => {
-	res.send("logging out");
-});
 // GET  /auth/verify
 // ...
+router.get("/verify", isAuthenticated, (req, res, next) => {
+	console.log(`req.payload`, req.payload);
+
+	res.status(200).json(req.payload);
+});
 
 module.exports = router;
