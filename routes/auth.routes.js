@@ -9,7 +9,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-	const { profileName, email, pwd } = req.body;
+	const { email, pwd } = req.body;
 	console.log(pwd);
 
 	if (screenName === "" || email === "" || pwd === "") {
@@ -35,7 +35,7 @@ router.post("/signup", (req, res, next) => {
 			.json({ message: "Passowrd must be longer than 7 characters" });
 	}
 
-	User.findOne({ profileName, email })
+	User.findOne({ email })
 		.then((foundUser) => {
 			if (foundUser) {
 				res.status(400).json({ message: "User already exists." });
@@ -45,11 +45,11 @@ router.post("/signup", (req, res, next) => {
 			const salt = bcrypt.genSaltSync(saltRounds);
 			const hashedPassword = bcrypt.hashSync(pwd, salt);
 
-			return User.create({ profileName, email, pwd: hashedPassword });
+			return User.create({ email, pwd: hashedPassword });
 		})
 		.then((createdUser) => {
-			const { profileName, email, _id } = createdUser;
-			const user = { profileName, email, _id };
+			const { email, _id } = createdUser;
+			const user = { email, _id };
 			res.status(201).json({ user: user });
 		})
 		.catch((err) => {
