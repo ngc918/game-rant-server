@@ -23,8 +23,8 @@ app.use("/api", allRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
-// const commentsRouter = require("./routes/comments.routes");
-// app.use("/comments", commentsRouter);
+const commentsRouter = require("./routes/comments.routes");
+app.use("/comments", commentsRouter);
 
 // const projectRoutes = require("./routes/project.routes");
 // app.use("/api", projectRoutes);
