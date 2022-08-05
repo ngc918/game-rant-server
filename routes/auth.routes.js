@@ -12,7 +12,7 @@ router.post("/signup", (req, res, next) => {
 	const { email, pwd } = req.body;
 	console.log(pwd);
 
-	if (screenName === "" || email === "" || pwd === "") {
+	if (email === "" || pwd === "") {
 		res.status(400).json({ message: "Provide email and password" });
 		return;
 	}
@@ -21,12 +21,6 @@ router.post("/signup", (req, res, next) => {
 	if (!emailRegex.test(email)) {
 		res.status(400).json({ message: "Provide a valid email address." });
 		return;
-	}
-
-	if (profileName.length < 5) {
-		res
-			.status(400)
-			.json({ message: "Profile name must be longer than 5 characters" });
 	}
 
 	if (pwd.length < 7) {
